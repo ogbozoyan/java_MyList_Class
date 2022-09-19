@@ -92,8 +92,20 @@ public class MyList<T> {
             this.Prev.isTail = false;
         size += 1;
     }
-
-    protected void addNode() {
+    protected void addNext(T element) {//добавляет в current node
+        this.addNode();
+        this.Next.element = element;
+        this.Next.setTail();
+        if (this.Next.Prev == null) {
+            this.Next.setHead();
+            this.Next.setTail();
+        } else if (this.Next.Prev.isHead)
+            this.Next.setTail();
+        else if (this.Next.Prev.isTail)
+            this.Next.Prev.isTail = false;
+        size += 1;
+    }
+    private void addNode() {
         MyList<T> node = new MyList<>(this);
         node.setTail();
         node.element = null;
