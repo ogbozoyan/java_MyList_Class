@@ -1,193 +1,83 @@
 import org.jetbrains.annotations.NotNull;
-
-public class MyList<T> {
-    protected T element;
-    protected MyList<T> Next; //указатель на предыдущую ноду
-    protected MyList<T> Prev;//указатель на следующую ноду
-    int index = 0; /*индекс текущей ноды немного некроктно показывает
-    если добавлять ноду start.addNode() несколько раз, нужно добавлять относительно последней ноды*/
-    static int buff = 0;
-    static int size = 0;
-    private boolean isHead = false;
-    private boolean isTail = false;
-    protected void clear() {/*Нужно запускать от головы*/
-        var ptr = this;
-        if (ptr.isHead != true) {
-            System.out.println("To clear List -  start from Head");
-        } else if(ptr.isHead == true){
-            do {
-                if(ptr.isTail){
-                    ptr.element = null;
-                    break;
-                }
-                ptr.element = null;
-                ptr = ptr.Next;
-            }while (true);
-        }
-    }
-    protected void delVal(T toDel){/*Поиск нужно начинать от head
-    удаляет первое появление элемента*/
-        var ptr = this;
-        var val = ptr.element;
-        if(val == toDel){
-            ptr.element = null;
-        }
-        while(val !=  toDel){
-            if(ptr.Next != null){
-                ptr = ptr.Next;
-                val = ptr.element;
-                if(val == toDel){
-                    ptr.element = null;
-                }
-            }
-            else if(ptr.Next == null){
-                System.out.println("Don't have that value");
-                break;
-            }
-        }
-    }
-    protected void delTop() {//можно начать с любой точки
-        var buf = this.isHead;
-        if (buf) {
+import java.util.Scanner;
+public class MyList<T extends Comparable<T>> {
+     public Node<T> Head;
+     public @NotNull Node Last;
+     static int size = 0;
+    public class Node<T> extends MyList{
+        public T element;
+        public Node Next;
+        public Node(){
             this.element = null;
-        } else {
-            var ptr = this;
-            do{
-                if (buf != true) {
-                    ptr = ptr.Prev;
-                    buf = ptr.isHead;
-                    if(buf){
-                        System.out.println("Worked");
-                        ptr.element = null;
-                    }
-                }
-            } while(buf != true);
+            this.Next = null;
+        }
+        public Node(T val){
+            this.Head = this;
+            this.element = val;
+        }
+        public Node(@NotNull Node ob){ //copy
+            this.Next = ob.Next;
+            this.element = (T) ob.element;
+            this.size = ob.size;
+            this.Head = ob.Head;
+            this.Last = ob.Last;
         }
     }
-    protected void addToEnd(T val){
-        var ptr = this;
-        if(ptr.isTail){
-            ptr.element = val;
-        }
-        while(true){
-            if(!ptr.isTail){
-                ptr = ptr.Next;
-                if(ptr.isTail){
-                    ptr.element = val;
-                    System.out.println("Worked");
-                    break;
-                }
-            }
+    public void add(T val){
+        if(isEmpty()){
+            Head = new Node(val);
+            Last = Head;
+        }else{
+            Node<T> nw = new Node(Last);
+            Last.Next = nw;
+            nw.Next = null;
+            nw.element = val;
+            Last = nw;
         }
     }
-    protected void add(T element) {//добавляет в current node
-        this.element = element;
-        this.setTail();
-        if (this.Prev == null) {
-            this.setHead();
-            this.setTail();
-        } else if (this.Prev.isHead)
-            this.setTail();
-        else if (this.Prev.isTail)
-            this.Prev.isTail = false;
-        size += 1;
-    }
-    protected void addNext(T element) {//добавляет в current node
-        this.addNode();
-        this.Next.element = element;
-        this.Next.setTail();
-        if (this.Next.Prev == null) {
-            this.Next.setHead();
-            this.Next.setTail();
-        } else if (this.Next.Prev.isHead)
-            this.Next.setTail();
-        else if (this.Next.Prev.isTail)
-            this.Next.Prev.isTail = false;
-        size += 1;
-    }
-    private void addNode() {
-        MyList<T> node = new MyList<>(this);
-        node.setTail();
-        node.element = null;
-        node.isHead = false;
-        this.setNext(node);
-            if (node.Prev.isHead) {
-                node.setTail();
-            }
-            if (node.Prev.isTail) {
-                node.Prev.isTail = false;
-            }
-                buff++;
-                node.index = buff;
-        }
-
-
-    private void setNext(@NotNull MyList<T> Next) {
-        this.Next = Next;
-        Next.Prev = this;
-    }
-
-    private void setHead() {
-        try {
-            if (this.Prev.isHead) {
-                System.out.println("Head is" + this.Prev);
-            } else {
-                this.isHead = true;
-            }
-        } catch (NullPointerException e) {
-            this.isHead = true;
+    public void addHead(T val){
+        if(isEmpty()){
+            Head = new Node(val);
+        }else{
+            Head.element = val;
         }
     }
-    public MyList() {
-        this.Next = null;
-        this.Prev = null;
-        this.element = null;
-        size = 0;
-        setTail();
-        setHead();
+    public void delHead(){
+        Head.element = null;
     }
-    protected MyList(MyList<T> needtocopy) {
-        this.Next = needtocopy.Next;
-        this.Prev = needtocopy.Prev;
-        this.element = needtocopy.element;
-        this.isHead = needtocopy.isHead;
-        this.isTail = needtocopy.isTail;
-    }
-    public boolean getHead() {
-        return this.isHead;
-    }
-    private void setTail() {
-        this.isTail = true;
-    }
-    public boolean getTail() {
-        return this.isTail;
-    }
-    public T getPrev() {
-        return (T) this.Prev;
-    }
-    public T getNext() {
-        return (T) this.Next;
-    }
-    public int sizeofMyList() {
-        return size;
-    }
-    public T getValue() {
-        return this.element;
+    public void delVal(T val){
+        var ptr = Head;
+        for(int i = 0;i<size();i++){
+            if(ptr.element.compareTo(val) == 0 ) {ptr.element = null; break;}
+            else ptr = ptr.Next;
+        }
     }
     public boolean isEmpty() {
-        if ((this.Prev == null) && (this.Next == null)) return true;
+        if(size()==0){
+            return true;
+        }
         return false;
     }
-    protected void print(String name) {
-        System.out.println("-----Info----- this is ---- "+name +" -ID- "+ this );
-        System.out.println("Index: " + this.index);
-        System.out.println("Empty: " + this.isEmpty());
-        System.out.println("Prev: " + this.getPrev());
-        System.out.println("Next: " + this.getNext());
-        System.out.println("Head: " + this.getHead());
-        System.out.println("Tail: " + this.getTail());
-        System.out.println("Value: " + this.getValue());
-        System.out.println("Size: " + this.sizeofMyList());
-        System.out.println("--------------------------------");
+    public int size() {
+        Node<T> p;
+        int size=0;
+        for(p=Head;p!=null;p=p.Next){
+            size++;
+        }
+        return size;
+    }
+    public void clear(){
+        System.out.println("Do you want clear Your list?" +
+                " Yes or No: \n");
+        Scanner scanner = new Scanner(System.in);
+        String agre = "";
+        agre = scanner.nextLine();
+        if(agre.equals("yes") || agre.equals("Yes")
+           || agre.equals("y") || agre.equals("Y")){
+            this.Head = null;
+            this.size = 0;
+            this.Last = null;
+            System.out.println("Done");
+        }
     }
 }
